@@ -120,3 +120,22 @@ func TestContextWithTimeout(t *testing.T) {
 
 	fmt.Println("Total Goroutine", runtime.NumGoroutine())
 }
+
+func TestContextWithDeadline(t *testing.T) {
+	parent := context.Background()
+	// jika sudah mencapai waktu deadline, maka langsung dihentikan.
+	// deadline dijalankan dengan waktu yang sudah ditentukan
+	ctx, cancel := context.WithDeadline(parent, time.Now().Add(5*time.Second))
+	defer cancel() // jika fungsi selesai dieksekusi sebelum timeout, maka cancel() akan dijalankan
+
+	destination := CreateCounterSlow(ctx)
+	fmt.Println("Total Goroutine", runtime.NumGoroutine())
+
+	for n := range destination {
+		fmt.Println("Counter", n)
+	}
+
+	time.Sleep(2 * time.Second) // ini cuma untuk memastikan goroutine sudah dimatikan
+
+	fmt.Println("Total Goroutine", runtime.NumGoroutine())
+}
